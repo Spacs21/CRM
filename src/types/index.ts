@@ -5,6 +5,8 @@ export interface clients {
     phone_primary: string,
     address: string,
     budget: number
+    pin: boolean;
+
 }
 export interface Items {
   _id: string;

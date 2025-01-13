@@ -12,7 +12,7 @@ const Seller = () => {
   const skip = (page - 1) * itemsPerPage;
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ['customers', page],
+    queryKey: ['sellers', page],
     queryFn: () => request.get("/get/sellers", {
       params: {
         skip: skip,

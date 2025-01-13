@@ -12,14 +12,14 @@ const Customer = () => {
   const skip = (page - 1) * itemsPerPage;
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ['customers', page],
+    queryKey: ['customer', page],
     queryFn: () => request.get("/get/customers", {
       params: {
         skip: skip,
         limit: itemsPerPage
       }
     }).then((res) => res.data),
-  });
+  }); 
 
   if (isLoading) return <div>
     <Box sx={{ display: 'flex', justifyContent: "center", height: "80vh", alignItems: "center" }}>
