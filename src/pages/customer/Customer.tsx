@@ -20,6 +20,7 @@ const Customer = () => {
       }
     }).then((res) => res.data),
   }); 
+  console.log(data);
 
   if (isLoading) return <div>
     <Box sx={{ display: 'flex', justifyContent: "center", height: "80vh", alignItems: "center" }}>
@@ -43,7 +44,7 @@ const Customer = () => {
         </Typography>
         <Button onClick={() => setOpen("customer")}>Create</Button>
       </Box>
-      <Table data={data?.innerData} />
+      <Table data={data?.innerData} type="customer"/>
       <div className="flex justify-center mt-12">
         <Pagination count={Math.ceil(data?.totalCount / itemsPerPage)} page={page} onChange={handlePageChange} color="primary" />
       </div>

@@ -12,7 +12,7 @@ const Seller = () => {
   const skip = (page - 1) * itemsPerPage;
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ['sellers', page],
+    queryKey: ['seller', page],
     queryFn: () => request.get("/get/sellers", {
       params: {
         skip: skip,
@@ -42,7 +42,7 @@ const Seller = () => {
         </Typography>
         <Button onClick={() => setOpen("seller")}>Create</Button>
       </Box>
-      <Table data={data.innerData}/>
+      <Table data={data?.innerData} type="seller"/>
        <div className="flex justify-center mt-12">
             <Pagination count={Math.ceil(data?.totalCount / itemsPerPage)} page={page} onChange={handlePageChange} color="primary" />
         </div>
