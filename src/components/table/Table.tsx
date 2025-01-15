@@ -30,10 +30,12 @@ const style = {
   p: 4,
 };
 interface Payment {
-  amount: number
+  amount: number;
+  comment: string;
 }
 const initalState: Payment = {
-  amount: 0
+  amount: 0,
+  comment: ""
 }
 
 const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => {
@@ -47,12 +49,13 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: parseFloat(value) }));
+    setForm((p) => ({ ...p, [name]: name === "amount" ? parseFloat(value) : value }));
   };
 
   const handleOpen = (itemId: string) => {
     setModalItemId(itemId);
     setOpen(true);
+    setForm(initalState);
   };
 
   const handleModalClose = () => {
@@ -79,7 +82,7 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
   });
 
   const handlePayment = useMutation({
-    mutationFn: ({ budget, id }: { budget: number; id: string }) => request.patch(`/update/${type}/${id}`, { budget }),
+    mutationFn: ({ id, amount, comment }: { id: string; amount: number; comment: string }) => request.post(`/create/payment`, { id, amount, comment }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`${type}`] });
     },
@@ -93,12 +96,8 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
   });
 
   const handlePaymentSubmit = (itemId: string) => {
-    const paymentAmount = form.amount;
-    const item = data.find((client) => client._id === itemId);
-    if (item) {
-      const newBudget = item.budget - paymentAmount;
-      handlePayment.mutate({ budget: newBudget, id: itemId });
-    }
+    const { amount, comment } = form;
+    handlePayment.mutate({ id: itemId, amount, comment });
     handleModalClose();
   };
 
@@ -180,6 +179,14 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
                         name="amount"
                         onChange={handleChange}
                         value={form.amount}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Enter comment"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md mt-4"
+                        name="comment"
+                        onChange={handleChange}
+                        value={form.comment}
                       />
                       <button
                         type="submit"
