@@ -17,7 +17,6 @@ import { request } from "@/api";
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const style = {
   position: 'absolute',
