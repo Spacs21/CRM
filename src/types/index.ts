@@ -6,6 +6,7 @@ export interface clients {
   budget: number;
   address: string;
   isArchive: boolean;
+  pin: boolean;
 }
 
 export interface Items {
