@@ -1,13 +1,13 @@
 export interface clients {
-    _id: string,
-    fname: string,
-    lname: string,
-    phone_primary: string,
-    address: string,
-    budget: number
-    pin: boolean;
-
+  _id: string;
+  fname: string;
+  lname: string;
+  phone_primary: string;
+  budget: number;
+  address: string;
+  isArchive: boolean;
 }
+
 export interface Items {
   _id: string;
   title: string;

@@ -23,6 +23,7 @@ import {Link} from "../../static/index"
 import Button from '@mui/material/Button';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/slice/auth-slice';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 const LINKS: Link[] = [
   {
@@ -39,6 +40,11 @@ const LINKS: Link[] = [
     title: "Products",
     path: "/products",
     icon: <ProductionQuantityLimitsIcon/>
+  },
+  {
+    title: "Archive",
+    path: "/archive",
+    icon: <Inventory2Icon/>
   }
 ]
 

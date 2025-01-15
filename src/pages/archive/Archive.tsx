@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -6,17 +6,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import {clients} from "@/types/index"
-import PushPinIcon from '@mui/icons-material/PushPin';
-import { Button } from "@mui/material";
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { request } from "@/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button, Menu, MenuItem, Modal, Box } from "@mui/material";
+import { clients } from "@/types/index";
+import PushPinIcon from '@mui/icons-material/PushPin';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
 
 const style = {
   position: 'absolute',
@@ -29,6 +25,7 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
+
 interface Payment {
   amount: number
 }
@@ -36,7 +33,11 @@ const initalState: Payment = {
   amount: 0
 }
 
-const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => {
+const Archive = () => {
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['archivedCustomers'],
+    queryFn: () => request.get("/get/customers?isArchive=true&limit=209").then((res) => res.data),
+  });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [id, setId] = React.useState<null | string>(null)
   const [modalItemId, setModalItemId] = React.useState<null | string>(null);
@@ -72,29 +73,29 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
   };
 
   const handlePin = useMutation({
-    mutationFn: ({ pin, id }: { pin: boolean; id: string }) => request.patch(`/update/${type}/${id}`, { pin }),
+    mutationFn: ({ pin, id }: { pin: boolean; id: string }) => request.patch(`/update/customers/${id}`, { pin }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${type}`] });
+      queryClient.invalidateQueries({ queryKey: ['archivedCustomers'] });
     },
   });
 
   const handlePayment = useMutation({
-    mutationFn: ({ budget, id }: { budget: number; id: string }) => request.patch(`/update/${type}/${id}`, { budget }),
+    mutationFn: ({ budget, id }: { budget: number; id: string }) => request.patch(`/update/customers/${id}`, { budget }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${type}`] });
+      queryClient.invalidateQueries({ queryKey: ['archivedCustomers'] });
     },
   });
 
   const handleArchive = useMutation({
-    mutationFn: ({ isArchive, id }: { isArchive: boolean; id: string }) => request.patch(`/update/${type}/${id}`, { isArchive }),
+    mutationFn: ({ isArchive, id }: { isArchive: boolean; id: string }) => request.patch(`/update/customers/${id}`, { isArchive }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${type}`] });
+      queryClient.invalidateQueries({ queryKey: ['archivedCustomers'] });
     },
   });
 
   const handlePaymentSubmit = (itemId: string) => {
     const paymentAmount = form.amount;
-    const item = data.find((client) => client._id === itemId);
+    const item = data.innerData.find((client: clients) => client._id === itemId);
     if (item) {
       const newBudget = item.budget - paymentAmount;
       handlePayment.mutate({ budget: newBudget, id: itemId });
@@ -102,13 +103,21 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
     handleModalClose();
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading data</div>;
+  console.log(data);
+
   return (
-    <TableContainer component={Paper}>
+    <>
+     <Typography id="modal-modal-title" variant="h6" component="h2">
+          Archive
+    </Typography>
+    <TableContainer component={Paper} className="mt-4">
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>First name</TableCell>
-            <TableCell align="right">Last name</TableCell>
+            <TableCell>First Name</TableCell>
+            <TableCell align="right">Last Name</TableCell>
             <TableCell align="right">Phone</TableCell>
             <TableCell align="right">Budget</TableCell>
             <TableCell align="right">Address</TableCell>
@@ -116,7 +125,7 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((item: clients) => (
+          {data.innerData?.map((item: clients) => (
             <TableRow
               key={item._id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -127,10 +136,6 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
                   <PushPinIcon sx={{ fontSize: "medium" }} />
                 }
                 {item.fname}
-                {/* {
-                  item.isActive &&
-                  <CheckCircleIcon/>
-                } */}
               </TableCell>
               <TableCell align="right">{item.lname}</TableCell>
               <TableCell align="right">{item.phone_primary}</TableCell>
@@ -154,8 +159,8 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
                   <MenuItem onClick={() => { handlePin.mutate({ pin: !item.pin, id: item._id }); handleClose(); }}>
                     {item.pin ? "Unpin" : "Pin"}
                   </MenuItem>
-                  <MenuItem onClick={() => { handleArchive.mutate({ isArchive: true, id: item._id }); handleClose(); }}>
-                    Archive
+                  <MenuItem onClick={() => { handleArchive.mutate({ isArchive: false, id: item._id }); handleClose(); }}>
+                    Unarchive
                   </MenuItem>
                   <MenuItem onClick={handleClose}><span onClick={() => handleOpen(item._id)}>Payment</span></MenuItem>
                 </Menu>
@@ -200,8 +205,9 @@ const BasicTable: React.FC<{data: clients[], type: string}> = ({data, type}) => 
         </TableBody>
       </Table>
     </TableContainer>
+    </>
   );
 }
 
 
-export default BasicTable
+export default Archive

@@ -6,6 +6,7 @@ import Login from "../pages/login/Login";
 import Customer from "@/pages/customer/Customer";
 import Seller from "@/pages/seller/Seller";
 import Products from "@/pages/products/Products";
+import Archive from "@/pages/archive/Archive";
 
 const Routers = () => {
   return (
@@ -34,6 +35,10 @@ const Routers = () => {
                     {
                       path: "/products",
                       element: <Products/>
+                    },
+                    {
+                      path: "/archive",
+                      element: <Archive/>
                     },
                   ]
                 },
