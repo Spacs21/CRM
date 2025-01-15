@@ -95,7 +95,7 @@ const Archive = () => {
 
   const handlePaymentSubmit = (itemId: string) => {
     const paymentAmount = form.amount;
-    const item = data.innerData.find((client: clients) => client._id === itemId);
+    const item = data.innerData((client: clients) => client._id === itemId);
     if (item) {
       const newBudget = item.budget - paymentAmount;
       handlePayment.mutate({ budget: newBudget, id: itemId });
